@@ -11,12 +11,12 @@
 
 #include <cerrno>
 #include <unistd.h>
-#define MAX_MESSAGE_SIZE_IN_BYTES 1024
+#define MAX_MESSAGE_SIZE_IN_BYTES 100
 
 struct Message{
         long type;
         long sender;
-        char data[MAX_MESSAGE_SIZE_IN_BYTES];
+        char data[100];
 };
 
 key_t key(){
@@ -49,7 +49,7 @@ int main()
                 exit(-1);
         }
 
-	kolejka_id = msgget(klucz, 0660 | IPC_CREAT);
+	kolejka_id = msgget(232425, 0660 | IPC_CREAT);
         if (kolejka_id == -1)
         {
                 perror("QUEUE error");
@@ -99,7 +99,7 @@ while (true)
 		while (true)
 		{
 				memset(p.data,NULL,MAX_MESSAGE_SIZE_IN_BYTES);
-				retval = static_cast<int>(msgrcv(kolejka_id, &p, sizeof(Message) - sizeof(long), this_proccess_pid, 0));
+				retval = static_cast<int>(msgrcv(kolejka_id, &p, 1000, this_proccess_pid, 0));
 				if (retval == 0 || errno != 4)
 						break;
 		}
@@ -186,7 +186,7 @@ while (true)
 				while (true)
 				{
 						temp = p.data;
-						retval = msgsnd(kolejka_id, &p, sizeof(long) + strlen(p.data) * sizeof(char),IPC_NOWAIT);
+						retval = msgsnd(kolejka_id, &p, 1000,IPC_NOWAIT);
 						if (retval == 0 || errno != 4 || errno != EAGAIN)
 								break;
 				}
@@ -194,10 +194,10 @@ while (true)
 				if ((retval == -1 && errno != 4) || (retval == -1 && errno != EAGAIN))
 				{
 						perror("Blad wysylania wiadomosci");
-						exit(4);
+						pthread_exit((void *) 0);
 				}
 				else
-				{
+			{
 						std::cout << "Klient o PID - " << this_proccess_pid << " Wyslano wiadomosc: "
 						<< p.data;
 						sleep(1);
