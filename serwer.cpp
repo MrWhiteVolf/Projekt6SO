@@ -42,7 +42,7 @@ int main()
         exit(-1);
     }
 
-	kolejka_id = msgget(klucz, IPC_CREAT | 0660);
+	kolejka_id = msgget(242523, IPC_CREAT | 0660);
     if (kolejka_id == -1)
     {
         perror("QUEUE error");
